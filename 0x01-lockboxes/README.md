@@ -1,5 +1,4 @@
-
-ckboxes
+lockboxes
 - Solving number of locked boxes.
 ## Tasks :page_with_curl:
 
