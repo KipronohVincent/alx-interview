@@ -4,8 +4,9 @@
 
 ## Tests :heavy_check_mark:
 
-** *0. UTF-8 Validation* **
-[0-validate_utf8.py](0-validate_utf8.py):Write a method that determines if a given data set represents a valid UTF-8 encoding.
+# 0. UTF-8 Validation
+[0-validate_utf8.py](0-validate_utf8.py)
+- Write a method that determines if a given data set represents a valid UTF-8 encoding.
 
 - Prototype: def validUTF8(data)
 - Return: True if data is a valid UTF-8 encoding, else return False
