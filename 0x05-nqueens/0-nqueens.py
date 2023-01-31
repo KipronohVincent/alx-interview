@@ -1,127 +1,91 @@
 #!/usr/bin/python3
-"""[summary]
-"""
+'''N Queens Challenge'''
 
 import sys
 
 
-def validate(args):
-    """[summary]
-
-    Args:
-        args ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    if len(args) == 2:
-
-        try:
-            number = int(args[1])
-            if number < 4:
-                print("N must be at least 4")
-                exit(1)
-        except Exception:
-            print("N must be a number")
-            exit(1)
-
-        return number
-    else:
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
         print("Usage: nqueens N")
+        sys.exit(1)
+
+    try:
+        n = int(sys.argv[1])
+    except ValueError:
+        print('N must be a number')
         exit(1)
 
+    if n < 4:
+        print('N must be at least 4')
+        exit(1)
 
-def solveNQ(number):
-    """[summary]
+    solutions = []
+    placed_queens = []  # coordinates format [row, column]
+    stop = False
+    r = 0
+    c = 0
 
-    Args:
-        number ([type]): [description]
+    # iterate thru rows
+    while r < n:
+        goback = False
+        # iterate thru columns
+        while c < n:
+            # check is current column is safe
+            safe = True
+            for cord in placed_queens:
+                col = cord[1]
+                if(col == c or col + (r-cord[0]) == c or
+                        col - (r-cord[0]) == c):
+                    safe = False
+                    break
 
-    Returns:
-        [type]: [description]
-    """
-    board = []
-    for i in range(number):
-        numbers = []
-        for j in range(number):
-            numbers.append(0)
-        board.append(numbers)
+            if not safe:
+                if c == n - 1:
+                    goback = True
+                    break
+                c += 1
+                continue
 
-    if not solveNQUtil(board, 0, number):
-        return False
+            # place queen
+            cords = [r, c]
+            placed_queens.append(cords)
+            # if last row, append solution and reset all to last unfinished row
+            # and last safe column in that row
+            if r == n - 1:
+                solutions.append(placed_queens[:])
+                for cord in placed_queens:
+                    if cord[1] < n - 1:
+                        r = cord[0]
+                        c = cord[1]
+                for i in range(n - r):
+                    placed_queens.pop()
+                if r == n - 1 and c == n - 1:
+                    placed_queens = []
+                    stop = True
+                r -= 1
+                c += 1
+            else:
+                c = 0
+            break
+        if stop:
+            break
+        # on fail: go back to previous row
+        # and continue from last safe column + 1
+        if goback:
+            r -= 1
+            while r >= 0:
+                c = placed_queens[r][1] + 1
+                del placed_queens[r]  # delete previous queen coordinates
+                if c < n:
+                    break
+                r -= 1
+            if r < 0:
+                break
+            continue
+        r += 1
 
-    return True
-
-
-def solveNQUtil(board, col, number):
-    """[summary]
-
-    Args:
-        board ([type]): [description]
-        number ([type]): [description]
-        col ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    if (col == number):
-        print_board(board)
-        return True
-    answer = False
-
-    for i in range(number):
-        if (isSafe(board, i, col, number)):
-            board[i][col] = 1
-            answer = solveNQUtil(board, col + 1, number) or answer
-            board[i][col] = 0
-
-    return answer
-
-
-def isSafe(board, row, col, number):
-    """[summary]
-
-    Args:
-        board ([type]): [description]
-        row ([type]): [description]
-        col ([type]): [description]
-        number ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    for i in range(col):
-        if board[row][i] == 1:
-            return False
-
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    for i, j in zip(range(row, number, 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
-
-    return True
-
-
-def print_board(board):
-    """[summary]
-
-    Args:
-        board ([type]): [description]
-    """
-    new_board = []
-    for i, row in enumerate(board):
-        value = []
-        for j, col in enumerate(row):
-            if col == 1:
-                value.append(i)
-                value.append(j)
-        new_board.append(value)
-
-    print(new_board)
-
-if __name__ == "__main__":
-    number = validate(sys.argv)
-    solveNQ(number)
+    for idx, val in enumerate(solutions):
+        if idx == len(solutions) - 1:
+            print(val, end='')
+        else:
+            print(val)
