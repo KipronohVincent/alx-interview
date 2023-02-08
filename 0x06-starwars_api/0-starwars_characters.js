@@ -1,37 +1,53 @@
 #!/usr/bin/node
-// Import the request module
+
 const request = require('request');
-// Get the movie ID from the first argument passed to the script
+
 const movieId = process.argv[2];
-// Build the URL for the film endpoint
-const url = `https://swapi.dev/api/films/${movieId}/`;
+const filmEndPoint = 'https://swapi-api.hbtn.io/api/films/' + movieId;
+let people = [];
+const names = [];
 
-// Make a GET request to the URL
-request(url, function (error, response, body) {
-  if (error) {
-    // If there is an error in the request, display the error and exit the script
-    console.error(error);
-    return;
+const requestCharacters = async () => {
+  await new Promise(resolve => request(filmEndPoint, (err, res, body) => {
+    if (err || res.statusCode !== 200) {
+      console.error('Error: ', err, '| StatusCode: ', res.statusCode);
+    } else {
+      const jsonBody = JSON.parse(body);
+      people = jsonBody.characters;
+      resolve();
+    }
+  }));
+};
+
+const requestNames = async () => {
+  if (people.length > 0) {
+    for (const p of people) {
+      await new Promise(resolve => request(p, (err, res, body) => {
+        if (err || res.statusCode !== 200) {
+          console.error('Error: ', err, '| StatusCode: ', res.statusCode);
+        } else {
+          const jsonBody = JSON.parse(body);
+          names.push(jsonBody.name);
+          resolve();
+        }
+      }));
+    }
+  } else {
+    console.error('Error: Got no Characters for some reason');
   }
-  // Parse the response body as JSON
+};
 
-  const data = JSON.parse(body);
-  // Get the list of characters
-  const characters = data.characters;
+const getCharNames = async () => {
+  await requestCharacters();
+  await requestNames();
 
-  // Loop through each character
-  characters.forEach(function (character) {
-    // Make a GET request to the character endpoint
-    request(character, function (error, response, body) {
-      if (error) {
-        // If there is an error in the request, display the error and continue to the next character
-        console.error(error);
-        return;
-      }
-      // Parse the response body as JSON
-      const characterData = JSON.parse(body);
-      // Display the name of the character
-      console.log(characterData.name);
-    });
-  });
-});
+  for (const n of names) {
+    if (n === names[names.length - 1]) {
+      process.stdout.write(n);
+    } else {
+      process.stdout.write(n + '\n');
+    }
+  }
+};
+
+getCharNames();
