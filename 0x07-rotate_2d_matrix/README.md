@@ -5,7 +5,7 @@
 
 ## Tests :heavy_check_mark:
 
-[main_0.py](main_0.py)
+[test](test)
 
 ## Tasks :page_with_curl:
 
